@@ -184,6 +184,9 @@ function SetStaticBuffer(pack, pNetPackData)
 				pNetPackData:AddString(pack[propName] or "", propCount)
 			elseif propCount == pack._field_[i-1][1] then
 				pNetPackData:AddINT32(0)
+				if IsServer64 then
+					pNetPackData:AddINT32(0)
+				end
 			else
 				com.error("propCount(%s) error", propCount)
 			end
@@ -192,6 +195,9 @@ function SetStaticBuffer(pack, pNetPackData)
 				pNetPackData:AddObj(pack[propName] or "", 0, propCount)
 			elseif propCount == pack._field_[i-1][1] then
 				pNetPackData:AddINT32(0)
+				if IsServer64 then
+					pNetPackData:AddINT32(0)
+				end
 			else
 				com.error("propCount(%s) error", propCount)
 			end
@@ -340,6 +346,9 @@ function SetStaticBuffer(pack, pNetPackData)
 				end
 			elseif propCount == pack._field_[i-1][1] then
 				pNetPackData:AddINT32(0)
+				if IsServer64 then
+					pNetPackData:AddINT32(0)
+				end
 			else
 				com.error("propCount(%s) error", propCount)
 			end
