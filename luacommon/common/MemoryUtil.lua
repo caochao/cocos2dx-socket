@@ -1,74 +1,73 @@
-MemoryUtil = {};  
-local MemberLog = {};  
-MemoryUtil.isPrintingLog = false;  
-MemoryUtil.ExcuteCount = 0;  
+MemoryUtil = {}
+local MemberLog = {}
+MemoryUtil.isPrintingLog = false
+MemoryUtil.ExcuteCount = 0
   
 function MemoryUtil.Init()  
     --collectgarbage("stop");  
-    MemoryUtil.MemeryClearAllLog();  
-    MemoryUtil.Start();  
+    MemoryUtil.MemeryClearAllLog() 
+    MemoryUtil.Start()
 end  
   
 function MemoryUtil.MemeryRecord(key, log)  
     if MemoryUtil.isPrintingLog then  
-        return;  
+        return
     end  
     if not MemberLog[key] then  
-        return;  
+        return
     end  
-    local runTime = os.clock()*1000 - MemberLog[key].startTime;  
-    local addMemory = collectgarbage("count") - MemberLog[key].lastMem - MemoryUtil.ExcuteCount*0.46025;  
-    MemberLog[key].totalAdd = MemberLog[key].totalAdd + addMemory;  
-    MemberLog[key].totalTime = MemberLog[key].totalTime + runTime;  
-    MemberLog[key].Average = MemberLog[key].totalAdd / MemberLog[key].count;  
-    MemberLog[key].averageTime = MemberLog[key].averageTime / MemberLog[key].count;  
+    local runTime = os.clock() * 1000 - MemberLog[key].startTime
+    local addMemory = collectgarbage("count") - MemberLog[key].lastMem - MemoryUtil.ExcuteCount*0.46025
+    MemberLog[key].totalAdd = MemberLog[key].totalAdd + addMemory
+    MemberLog[key].totalTime = MemberLog[key].totalTime + runTime
+    MemberLog[key].Average = MemberLog[key].totalAdd / MemberLog[key].count
+    MemberLog[key].averageTime = MemberLog[key].totalTime / MemberLog[key].count
     if MemberLog[key].MaxAdd < addMemory then  
-        MemberLog[key].MaxAdd = addMemory;  
+        MemberLog[key].MaxAdd = addMemory
     end  
     if log then  
-        error(addMemory);  
+        error(addMemory)
     end  
 end  
   
 function MemoryUtil.MemeryAddLog(key)  
     if MemoryUtil.isPrintingLog then  
-        return;  
+        return
     end  
     if not MemberLog[key] then  
-        MemberLog[key] = {key = "", lastMem = 0, totalAdd = 0, MaxAdd = 0, startTime = 0, totalTime = 0, averageTime = 0, count = 0, Average = 0};  
-        MemberLog[key].key = key;  
+        MemberLog[key] = {key = key, lastMem = 0, totalAdd = 0, MaxAdd = 0, startTime = 0, totalTime = 0, averageTime = 0, count = 0, Average = 0}
     end  
-    MemberLog[key].lastMem = collectgarbage("count") - MemoryUtil.ExcuteCount*0.46025;  
-    MemberLog[key].startTime = os.clock()*1000;  
-    MemberLog[key].count = MemberLog[key].count + 1;  
+    MemberLog[key].lastMem = collectgarbage("count") - MemoryUtil.ExcuteCount*0.46025
+    MemberLog[key].startTime = os.clock() * 1000
+    MemberLog[key].count = MemberLog[key].count + 1
 end  
   
 function MemoryUtil.MemeryClearAllLog()  
-    MemberLog = {};  
-    MemoryUtil.ExcuteCount = 0;  
+    MemberLog = {}
+    MemoryUtil.ExcuteCount = 0
     --LuaGC();  
 end  
   
 local function SortFunc(memoryA, memoryB)  
-    return memoryA.Average > memoryB.Average;  
+    return memoryA.Average > memoryB.Average
 end  
   
-local MemberLogArr = {};  
+local MemberLogArr = {}
 function MemoryUtil.PrintAllLog()  
-    MemoryUtil.isPrintingLog = true;  
-    local str = "";  
+    MemoryUtil.isPrintingLog = true
+    local str = ""
     for key, value in pairs(MemberLog) do  
-        table.insert(MemberLogArr, value);  
+        table.insert(MemberLogArr, value)
     end  
-    table.sort(MemberLogArr, SortFunc);  
+    table.sort(MemberLogArr, SortFunc)
     for key, value in ipairs(MemberLogArr) do  
         if value.Average > 0.0 then  
-            str = str .. "Key:" .. value.key .. "#Average:" .. value.Average .. "#Max:" .. value.MaxAdd .. "#Time:" .. value.averageTime .. "#Count" .. value.count .. "\n";  
+            str = str .. "Key:" .. value.key .. "#Average:" .. value.Average .. "#Max:" .. value.MaxAdd .. "#Time:" .. value.averageTime .. "#Count" .. value.count .. "\n"
         end  
     end  
-    MemberLogArr = {};  
-    File.WriteAllText("LuaMemory.txt", str);  
-    MemoryUtil.isPrintingLog = false;  
+    MemberLogArr = {} 
+    File.WriteAllText("LuaMemory.txt", str)
+    MemoryUtil.isPrintingLog = false  
 end  
   
 function MemoryUtil.Start()  
@@ -77,8 +76,7 @@ end
   
 local funcinfo = nil;  
 function MemoryUtil.Profiling_Handler(hooktype)  
-  
-    MemoryUtil.ExcuteCount = MemoryUtil.ExcuteCount +1;  
+    MemoryUtil.ExcuteCount = MemoryUtil.ExcuteCount + 1
     funcinfo = debug.getinfo(2, 'nS')  
   
     if hooktype == "call" then  
@@ -86,7 +84,7 @@ function MemoryUtil.Profiling_Handler(hooktype)
     elseif hooktype == "return" then  
         MemoryUtil.Profiling_Return(funcinfo)  
     end  
-    funcinfo = nil;  
+    funcinfo = nil
 end  
   
 function MemoryUtil.Func_Title(funcinfo)  
@@ -94,13 +92,13 @@ function MemoryUtil.Func_Title(funcinfo)
     local name = funcinfo.name or 'anonymous'  
     local line = string.format("%d", funcinfo.linedefined or 0)  
     local source = funcinfo.short_src or 'C_FUNC'  
-    return name, source, line;  
+    return name, source, line
 end  
   
 -- get the function report  
 function MemoryUtil.Func_Report(funcinfo)  
     local name, source, line = MemoryUtil.Func_Title(funcinfo)  
-    return source .. ":" .. name;   
+    return source .. ":" .. name  
 end  
   
 -- profiling call  
@@ -109,16 +107,16 @@ function MemoryUtil.Profiling_Call(funcinfo)
     -- get the function report  
     local report = MemoryUtil.Func_Report(funcinfo)  
     assert(report)  
-    MemoryUtil.MemeryAddLog(report);  
+    MemoryUtil.MemeryAddLog(report)
 end  
   
 -- profiling return  
 function MemoryUtil.Profiling_Return(funcinfo)  
     local report = MemoryUtil.Func_Report(funcinfo)  
     assert(report)  
-    MemoryUtil.MemeryRecord(report);  
+    MemoryUtil.MemeryRecord(report)
 end  
   
 function MemoryUtil.PrintCurrentMem()  
-    error(collectgarbage("count"));  
+    error(collectgarbage("count"))
 end  
