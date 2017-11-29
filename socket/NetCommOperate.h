@@ -23,6 +23,8 @@ public:
 	void SetRecvTimeout(CP_SOCKET pSock, int iTimeoutTick);
 	// 设置接收超时时间(毫秒)
 	void SetSendTimeout(CP_SOCKET pSock, int iTimeoutTick);
+	//设置不延迟
+	void SetNoDelay(CP_SOCKET pSock, int on);
 
 	//获得系统错误
 	int GetSysLastError();

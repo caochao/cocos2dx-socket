@@ -208,12 +208,15 @@ bool AsyncClient::RecvThread(bool* bWaitExit)
 		m_bHasRecv = true;
 		cocos2d::Director::getInstance()->getScheduler()->performFunctionInCocosThread([&, this]
 		{
-			std::lock_guard<std::mutex> pLock(m_pRecvMutex); //线程开始加锁，退出时自动解锁 
+			std::string buffer;
+			{
+				std::lock_guard<std::mutex> pLock(m_pRecvMutex); //线程开始加锁，退出时自动解锁 
+				buffer = m_strRecvBuffer;
+				m_strRecvBuffer.clear();
+				m_bHasRecv = false;
+			}
 
-			this->OnRecv( (void *)m_strRecvBuffer.c_str(), (int)m_strRecvBuffer.size() );
-			m_strRecvBuffer.clear();
-
-			m_bHasRecv = false;
+			this->OnRecv( (void *)buffer.c_str(), (int)buffer.size() );
 		});
 	}
 
@@ -504,6 +507,7 @@ bool AsyncClient::Connect( struct addrinfo *pAddrInfo, int nPort, bool bSyncMode
 		}
 		m_netOperate.SetSendTimeout(m_sock, GetSendTimeout());
 		m_netOperate.SetRecvTimeout(m_sock, GetRecvTimeout());
+		m_netOperate.SetNoDelay(m_sock, 1);
 	}
 
 	if( m_sock==-1 )

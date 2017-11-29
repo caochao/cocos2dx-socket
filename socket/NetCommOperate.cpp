@@ -146,3 +146,12 @@ void simplecreator::NetCommonOperate::SetRecvTimeout(CP_SOCKET pSock, int iTimeo
 	setsockopt(pSock, SOL_SOCKET, SO_RCVTIMEO, &timeo, len);
 #endif
 }
+
+void simplecreator::NetCommonOperate::SetNoDelay(CP_SOCKET pSock, int on)
+{
+#if (defined(WIN32) || defined(WIN64))
+	setsockopt(pSock, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(on));
+#else
+	setsockopt(pSock, IPPROTO_TCP, TCP_NODELAY, (void *)&on, sizeof(on));
+#endif
+}

@@ -22,7 +22,7 @@
 
 #include <netdb.h>
 #include <netinet/ip.h>
-
+#include <netinet/tcp.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <netinet/in.h>
